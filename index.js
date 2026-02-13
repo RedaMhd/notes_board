@@ -16,5 +16,5 @@ app.get('/', (req, res)=>{
 //running server
 const PORT = process.env.PORT || 3005
 app.listen(PORT,()=>{
-    console.log(`running in htpp:localhost:${POST}`)
+    console.log(`running in htpp:localhost:${PORT}`)
 })
