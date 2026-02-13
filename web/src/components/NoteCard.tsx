@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { MouseEvent as ReactMouseEvent } from "react";
 import Trash from "./icons/Trash";
-import { setNewOffset } from "../utils.js";
+import { setNewOffset, autoGrow, setZIndex } from "../utils.js";
 import type { Note, Position } from "../types.js";
 
 type NoteCardProps = {
@@ -18,13 +18,6 @@ function NoteCard({ note }: NoteCardProps) {
 
   const cardRef = useRef<HTMLDivElement | null>(null);
   const textAreaRef = useRef<HTMLTextAreaElement | null>(null);
-
-  function autoGrow(textAreaRef: React.RefObject<HTMLTextAreaElement | null>) {
-    const { current } = textAreaRef;
-    if (!current) return;
-    current.style.height = "auto"; // Reset the height
-    current.style.height = current.scrollHeight + "px"; // Set the new height
-  }
 
   function mouseMove(e: MouseEvent) {
     //1 - Calculate move direction
@@ -44,6 +37,7 @@ function NoteCard({ note }: NoteCardProps) {
   }
 
   function mouseDown(e: ReactMouseEvent<HTMLDivElement>) {
+    setZIndex(cardRef.current);
     mouseStartPos.x = e.clientX;
     mouseStartPos.y = e.clientY;
 
@@ -84,6 +78,9 @@ function NoteCard({ note }: NoteCardProps) {
           defaultValue={body}
           onInput={() => {
             autoGrow(textAreaRef);
+          }}
+          onFocus={() => {
+            setZIndex(cardRef.current);
           }}
         ></textarea>
       </div>

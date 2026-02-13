@@ -12,3 +12,26 @@ export function setNewOffset(
     y: offsetTop < 0 ? 0 : offsetTop,
   };
 }
+
+export function autoGrow(
+  textAreaRef: React.RefObject<HTMLTextAreaElement | null>,
+) {
+  const { current } = textAreaRef;
+  if (!current) return;
+  current.style.height = "auto"; // Reset the height
+  current.style.height = current.scrollHeight + "px"; // Set the new height
+}
+
+export function setZIndex(selectedCard: HTMLDivElement | null) {
+  if (!selectedCard) return;
+  selectedCard.style.zIndex = "999";
+
+  const cards = Array.from(
+    document.getElementsByClassName("card"),
+  ) as HTMLDivElement[];
+  cards.forEach((card) => {
+    if (card !== selectedCard) {
+      card.style.zIndex = String(Number(selectedCard.style.zIndex) - 1);
+    }
+  });
+}
