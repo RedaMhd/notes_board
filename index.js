@@ -4,6 +4,7 @@ import morgan from "morgan";
 
 import authRouter from "./routes/auth.js";
 import notesRouter from "./routes/notes.js";
+import usersRouter from "./routes/users.js";
 
 //db connection
 import "./config/db.js";
@@ -17,6 +18,8 @@ app.use(morgan("dev"));
 app.use("/api/auth", authRouter);
 
 app.use("/api/notes", notesRouter);
+
+app.use("/api/users", usersRouter)
 
 //running server
 const PORT = process.env.PORT || 3005;
