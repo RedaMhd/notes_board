@@ -8,17 +8,16 @@ import {
 } from "../controllers/notesController.js";
 
 import { createNoteValidator, updateNoteValidator } from "../models/Note.js";
+import { authenticateToken, validatorMiddleware } from "../middlewares/index.js";
 
-//import { verifyToken } from "../middleware/verifyToken.js";
+const notesRouter = Router();
 
-const router = Router();
+//notesRouter.use(authenticateToken); // protect all routes
 
-//router.use(verifyToken); // protect all routes
+notesRouter.get("/", getAllNotes);
+notesRouter.get("/:id", getNoteById);
+notesRouter.post("/", createNoteValidator, validatorMiddleware, addNote);
+notesRouter.put("/:id", updateNoteValidator, validatorMiddleware, updateNoteById);
+notesRouter.delete("/:id", deleteNoteById);
 
-router.get("/", getAllNotes);
-router.get("/:id", getNoteById);
-router.post("/", createNoteValidator, addNote);
-router.put("/:id", updateNoteValidator, updateNoteById);
-router.delete("/:id", deleteNoteById);
-
-export default router;
+export default notesRouter;

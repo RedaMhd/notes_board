@@ -1,5 +1,4 @@
 import Note from "../models/Note.js";
-import { validationResult } from "express-validator";
 
 // Get All Notes
 export const getAllNotes = async (req, res) => {
@@ -30,16 +29,12 @@ export const getNoteById = async (req, res) => {
 
 // Add Note
 export const addNote = async (req, res) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		return res.status(400).json({ errors: errors.array() });
-	}
-
 	try {
 		const note = await Note.create({
 			body: req.body.body,
 			colors: req.body.colors,
 			position: req.body.position,
+			user_id: req.user.id
 		});
 
 		res.status(201).json(note);
@@ -50,11 +45,6 @@ export const addNote = async (req, res) => {
 
 // Update Note
 export const updateNoteById = async (req, res) => {
-	const errors = validationResult(req);
-	if (!errors.isEmpty()) {
-		return res.status(400).json({ errors: errors.array() });
-	}
-
 	try {
 		const note = await Note.findOneAndUpdate(
 			{
