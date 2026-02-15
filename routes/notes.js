@@ -8,7 +8,10 @@ import {
 } from "../controllers/notesController.js";
 
 import { createNoteValidator, updateNoteValidator } from "../models/Note.js";
-import { authenticateToken, validatorMiddleware } from "../middlewares/index.js";
+import {
+	authenticateToken,
+	validatorMiddleware,
+} from "../middlewares/index.js";
 
 const notesRouter = Router();
 
@@ -16,7 +19,12 @@ const notesRouter = Router();
 notesRouter.get("/", getAllNotesOfUser);
 notesRouter.get("/:id", getNoteById);
 notesRouter.post("/", createNoteValidator, validatorMiddleware, addNote);
-notesRouter.put("/:id", updateNoteValidator, validatorMiddleware, updateNoteById);
+notesRouter.put(
+	"/:id",
+	updateNoteValidator,
+	validatorMiddleware,
+	updateNoteById,
+);
 notesRouter.delete("/:id", deleteNoteById);
 
 export default notesRouter;

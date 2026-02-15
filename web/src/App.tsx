@@ -18,7 +18,7 @@ function App() {
 					}
 				/>
 				<Route path="/dashboard">
-					<Route index element={<Dashboard/>}/>
+					<Route index element={<Dashboard />} />
 				</Route>
 				<Route path="*" element={<NotFound />} />
 			</Routes>

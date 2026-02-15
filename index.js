@@ -19,7 +19,7 @@ app.use("/api/auth", authRouter);
 
 app.use("/api/notes", notesRouter);
 
-app.use("/api/dashboard", usersRouter)
+app.use("/api/dashboard", usersRouter);
 
 //running server
 const PORT = process.env.PORT || 3005;

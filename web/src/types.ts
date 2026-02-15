@@ -6,9 +6,9 @@ export type Note = {
 };
 
 export type User = {
-  _id: string;
-  email?: string;
-  role?: string;
+	_id: string;
+	email?: string;
+	role?: string;
 };
 
 export type Position = {

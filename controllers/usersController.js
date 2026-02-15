@@ -31,53 +31,53 @@ export const getUserById = async (req, res) => {
 
 // register User
 export const registerUser = async (req, res) => {
-    try {
-        const {email, userName, password} = req.body;
-        const existingUser = await User.findOne({
-            $or: [{ email }, { userName }],
-        });
+	try {
+		const { email, userName, password } = req.body;
+		const existingUser = await User.findOne({
+			$or: [{ email }, { userName }],
+		});
 
-        if (existingUser) {
-            if (existingUser.email === email) {
-                return res.status(400).json({ message: "Email already exists" });
-            }
+		if (existingUser) {
+			if (existingUser.email === email) {
+				return res.status(400).json({ message: "Email already exists" });
+			}
 
-            if (existingUser.userName === userName) {
-                return res.status(400).json({ message: "Username already exists" });
-            }
-        }
+			if (existingUser.userName === userName) {
+				return res.status(400).json({ message: "Username already exists" });
+			}
+		}
 
-        // Hasher le mot de passe
-        const hashedPassword = await bcrypt.hash(password, 10);
+		// Hasher le mot de passe
+		const hashedPassword = await bcrypt.hash(password, 10);
 
-        // Creer l ' utilisateur
-        const user = await User.create({
-            userName,
-            email,
-            password: hashedPassword,
-        });
+		// Creer l ' utilisateur
+		const user = await User.create({
+			userName,
+			email,
+			password: hashedPassword,
+		});
 
-        // Generer le token
-        const token = jwt.sign(
-            { id: user._id, email: user.email, role: user.role },
-            process.env.JWT_SECRET,
-            { expiresIn: "24h" },
-        );
+		// Generer le token
+		const token = jwt.sign(
+			{ id: user._id, email: user.email, role: user.role },
+			process.env.JWT_SECRET,
+			{ expiresIn: "24h" },
+		);
 
-        res.status(201).json({
-            success: true,
-            token,
-            user: {
-                id: user._id,
-                userName: user.userName,
-                email: user.email,
-                role: user.role,
-            },
-        });
-    } catch (error) {
-        res.status(500).json({ error: error.message });
-    }
-}
+		res.status(201).json({
+			success: true,
+			token,
+			user: {
+				id: user._id,
+				userName: user.userName,
+				email: user.email,
+				role: user.role,
+			},
+		});
+	} catch (error) {
+		res.status(500).json({ error: error.message });
+	}
+};
 // Login User
 export const loginUser = async (req, res) => {
 	try {
@@ -115,36 +115,36 @@ export const loginUser = async (req, res) => {
 	} catch (error) {
 		res.status(500).json({ error: error.message });
 	}
-}
+};
 
 // Update User
 export const updateUserById = async (req, res) => {
 	try {
-        const {email, userName, password} = req.body;
-        const existingUser = await User.findOne({
-            _id: { $ne: req.params.id },
-            $or: [{ email }, { userName }],
-        });
+		const { email, userName, password } = req.body;
+		const existingUser = await User.findOne({
+			_id: { $ne: req.params.id },
+			$or: [{ email }, { userName }],
+		});
 
-        if (existingUser) {
-            if (existingUser.email === email) {
-                return res.status(400).json({ message: "Email already exists" });
-            }
+		if (existingUser) {
+			if (existingUser.email === email) {
+				return res.status(400).json({ message: "Email already exists" });
+			}
 
-            if (existingUser.userName === userName) {
-                return res.status(400).json({ message: "Username already exists" });
-            }
-        }
-        // Hasher le mot de passe
-        const hashedPassword = await bcrypt.hash(password, 10);
+			if (existingUser.userName === userName) {
+				return res.status(400).json({ message: "Username already exists" });
+			}
+		}
+		// Hasher le mot de passe
+		const hashedPassword = await bcrypt.hash(password, 10);
 		const user = await User.findOneAndUpdate(
 			{
 				_id: req.params.id,
 			},
 			{
-                ...req.body,
-                password:hashedPassword
-            },
+				...req.body,
+				password: hashedPassword,
+			},
 			{ new: true },
 		);
 
