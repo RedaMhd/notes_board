@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import Spinner from "../components/icons/Spinner";
 import { Link } from "react-router-dom";
-import { getAllUsers } from "../api";
-import type { Note, User, Stats } from "../types";
+import { getAllUsers, getNotesCreatedLast7Days } from "../api";
+import type { User, Stats } from "../types";
 import { initialsFromEmail } from "../utils";
 
 import {
@@ -43,11 +43,13 @@ const defaultStats: Stats = {
 };
 
 export default function Dashboard() {
-  const rawNotes: Note[] = [];
+  const [lastCreatedAt, setLastCreatedAt] = useState<
+    { _id: string; createdAt: string }[]
+  >([]);
   const [stats, setStats] = useState<Stats>(defaultStats);
   const [users, setUsers] = useState<User[]>([]);
-  const [loadingUsers, setLoadingUsers] = useState(true);
-  const [errUsers, setErrUsers] = useState<string | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [isError, setIsError] = useState(false);
 
   const [search, setSearch] = useState("");
 
@@ -60,14 +62,19 @@ export default function Dashboard() {
   const currentInitials = initialsFromEmail(currentEmail);
 
   useEffect(() => {
-    console.log("effect: fetching users");
+    console.log("effect: fetching data");
     (async () => {
       try {
-        setLoadingUsers(true);
-        setErrUsers(null);
+        setLoading(true);
+        setIsError(false);
 
-        const data = await getAllUsers();
-        setUsers(data);
+        const [users, notesCreatedInTheLast7Days] = await Promise.all([
+          getAllUsers(),
+          getNotesCreatedLast7Days(),
+        ]);
+        console.log(notesCreatedInTheLast7Days);
+        setUsers(users);
+        setLastCreatedAt(notesCreatedInTheLast7Days);
       } catch (error) {
         let message = "Error: ";
         if (error instanceof Error) {
@@ -76,9 +83,9 @@ export default function Dashboard() {
           message += "Uknown error occured";
         }
         toast.error(message);
-        setErrUsers(message);
+        setIsError(true);
       } finally {
-        setLoadingUsers(false);
+        setLoading(false);
       }
     })();
   }, []);
@@ -158,8 +165,7 @@ export default function Dashboard() {
       labels.push(d.toLocaleDateString());
     }
 
-    for (const n of rawNotes) {
-      if (!n.createdAt) continue;
+    for (const n of lastCreatedAt) {
       const d = new Date(n.createdAt);
       d.setHours(0, 0, 0, 0);
       const diffDays = Math.round((today.getTime() - d.getTime()) / 86400000);
@@ -207,8 +213,6 @@ export default function Dashboard() {
     });
   }, [users, search]);
 
-  const isLoading = loadingUsers;
-
   return (
     <div className="dashboard">
       {/* HEADER */}
@@ -237,26 +241,20 @@ export default function Dashboard() {
         </div>
       </div>
 
-      {isLoading && (
-        <div className="cardStyle">
-          <Spinner color="#333" />
-        </div>
-      )}
-
-      {!isLoading && errUsers && (
+      {loading && (
         <div
-          className="cardStyle"
-          style={{ border: "1px solid rgba(239,68,68,0.35)" }}
+          style={{
+            minHeight: "80vh",
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+          }}
         >
-          <h3 style={{ marginTop: 0 }}>Some data couldn’t load</h3>
-          {errUsers && <p style={{ margin: "6px 0" }}>Users: {errUsers}</p>}
-          <p style={{ marginTop: 10, opacity: 0.75 }}>
-            Users section requires a backend route like <code>/api/users</code>.
-          </p>
+          <Spinner size="100" />
         </div>
       )}
 
-      {!isLoading && (
+      {!loading && (
         <>
           {/* KPI CARDS */}
           <section className="kpiGrid">
@@ -304,87 +302,92 @@ export default function Dashboard() {
       )}
 
       {/* USERS TABLE */}
-      <section style={{ marginTop: 14 }}>
-        <div className="cardStyle">
-          <div className="cardHeaderRow">
-            <h3 className="cardTitle">Users</h3>
+      {!loading && (
+        <section style={{ marginTop: 14 }}>
+          <div className="cardStyle">
+            <div className="cardHeaderRow">
+              <h3 className="cardTitle">Users</h3>
 
-            <div className="searchBox">
-              <span style={{ fontSize: 16, opacity: 0.7 }}>Search</span>
-              <input
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
-                placeholder="user email, role…"
-                className="searchInput"
-              />
+              <div className="searchBox">
+                <span style={{ fontSize: 16, opacity: 0.7 }}>Search</span>
+                <input
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  placeholder="user email, role…"
+                  className="searchInput"
+                />
+              </div>
+              <span className="cardBadge">
+                {loading ? (
+                  <Spinner color="#333" />
+                ) : (
+                  `${filteredUsers.length} users`
+                )}
+              </span>
             </div>
-            <span className="cardBadge">
-              {loadingUsers ? (
+
+            {loading ? (
+              <p style={{ margin: 0, opacity: 0.75 }}>
                 <Spinner color="#333" />
-              ) : (
-                `${filteredUsers.length} users`
-              )}
-            </span>
-          </div>
-
-          {loadingUsers ? (
-            <p style={{ margin: 0, opacity: 0.75 }}>
-              <Spinner color="#333" />
-            </p>
-          ) : errUsers ? (
-            <p style={{ margin: 0, opacity: 0.85 }}>
-              Users not available. Add a backend route like{" "}
-              <code>GET /api/users</code>.
-            </p>
-          ) : filteredUsers.length === 0 ? (
-            <p style={{ margin: 0, opacity: 0.75 }}>No users found.</p>
-          ) : (
-            <div style={{ overflowX: "auto" }}>
-              <table className="tableStyle">
-                <thead>
-                  <tr>
-                    <th className="thStyle">User</th>
-                    <th className="thStyle">Email</th>
-                    <th className="thStyle">Role</th>
-                    <th className="thStyle">Total Notes</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {filteredUsers.map((u) => {
-                    const init = initialsFromEmail(u.email);
-                    const total = notesCountByUser[u._id] ?? 0;
-                    return (
-                      <tr key={u._id}>
-                        <td className="tdStyle">
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: 10,
-                            }}
-                          >
-                            <div className="userBadgeSmall">{init}</div>
-                            <span
-                              style={{ fontFamily: "monospace", opacity: 0.8 }}
+              </p>
+            ) : isError ? (
+              <p style={{ margin: 0, opacity: 0.85 }}>
+                Users not available. Add a backend route like{" "}
+                <code>GET /api/users</code>.
+              </p>
+            ) : filteredUsers.length === 0 ? (
+              <p style={{ margin: 0, opacity: 0.75 }}>No users found.</p>
+            ) : (
+              <div style={{ overflowX: "auto" }}>
+                <table className="tableStyle">
+                  <thead>
+                    <tr>
+                      <th className="thStyle">User</th>
+                      <th className="thStyle">Email</th>
+                      <th className="thStyle">Role</th>
+                      <th className="thStyle">Total Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {filteredUsers.map((u) => {
+                      const init = initialsFromEmail(u.email);
+                      const total = notesCountByUser[u._id] ?? 0;
+                      return (
+                        <tr key={u._id}>
+                          <td className="tdStyle">
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: 10,
+                              }}
                             >
-                              {u._id.slice(0, 8)}…
-                            </span>
-                          </div>
-                        </td>
-                        <td className="tdStyle">{u.email ?? "—"}</td>
-                        <td className="tdStyle">{u.role ?? "—"}</td>
-                        <td className="tdStyle">
-                          <b>{total}</b>
-                        </td>
-                      </tr>
-                    );
-                  })}
-                </tbody>
-              </table>
-            </div>
-          )}
-        </div>
-      </section>
+                              <div className="userBadgeSmall">{init}</div>
+                              <span
+                                style={{
+                                  fontFamily: "monospace",
+                                  opacity: 0.8,
+                                }}
+                              >
+                                {u._id.slice(0, 8)}…
+                              </span>
+                            </div>
+                          </td>
+                          <td className="tdStyle">{u.email ?? "—"}</td>
+                          <td className="tdStyle">{u.role ?? "—"}</td>
+                          <td className="tdStyle">
+                            <b>{total}</b>
+                          </td>
+                        </tr>
+                      );
+                    })}
+                  </tbody>
+                </table>
+              </div>
+            )}
+          </div>
+        </section>
+      )}
     </div>
   );
 }
