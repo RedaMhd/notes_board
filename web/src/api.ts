@@ -126,9 +126,11 @@ export async function getAllUsers(): Promise<User[]> {
 		return [];
 	}
 }
-export async function getAllNotesDashboard(): Promise<Note[]> {
+export async function getNotesCreatedLast7Days(): Promise<
+	{ _id: string; createdAt: string }[]
+> {
 	try {
-		const response = await fetch(`${API_URL}/dashboard/notes`, {
+		const response = await fetch(`${API_URL}/dashboard/notes/last-seven-days`, {
 			method: "GET",
 			headers: {
 				"Content-Type": "application/json",
@@ -138,7 +140,10 @@ export async function getAllNotesDashboard(): Promise<Note[]> {
 		if (!response.ok) {
 			throw new Error("Couldn't load notes");
 		}
-		const data = (await response.json()) as Note[];
+		const data = (await response.json()) as {
+			_id: string;
+			createdAt: string;
+		}[];
 		return data;
 	} catch (error) {
 		if (error instanceof Error) {

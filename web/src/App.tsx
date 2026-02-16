@@ -17,9 +17,7 @@ function App() {
 						</NotesProvider>
 					}
 				/>
-				<Route path="/dashboard">
-					<Route index element={<Dashboard />} />
-				</Route>
+				<Route path="/dashboard" element={<Dashboard />} />
 				<Route path="*" element={<NotFound />} />
 			</Routes>
 			<ToastContainer

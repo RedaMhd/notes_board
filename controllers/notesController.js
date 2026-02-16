@@ -94,3 +94,17 @@ export const deleteNoteById = async (req, res) => {
 		res.status(500).json({ message: "Server error" });
 	}
 };
+
+export const getNotesCreatedLast7Days = async (req, res) => {
+	try {
+		const sevenDaysAgo = new Date();
+		sevenDaysAgo.setDate(sevenDaysAgo.getDate() - 7);
+
+		const notes = await Note.find({
+			createdAt: { $gte: sevenDaysAgo },
+		}).select("createdAt");
+		res.status(200).json(notes);
+	} catch (error) {
+		res.status(500).json({ message: "Server error" });
+	}
+};

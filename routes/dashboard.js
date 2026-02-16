@@ -17,6 +17,7 @@ import {
 	deleteNoteById,
 	getAllNotes,
 	getNoteById,
+	getNotesCreatedLast7Days,
 	updateNoteById,
 } from "../controllers/notesController.js";
 import { createNoteValidator, updateNoteValidator } from "../models/Note.js";
@@ -45,6 +46,7 @@ usersRouter.delete("/users/:id", deleteUserById);
 
 // notes routes (I still working on it )
 usersRouter.get("/notes/", getAllNotes);
+usersRouter.get("/notes/last-seven-days", getNotesCreatedLast7Days);
 usersRouter.get("/notes/:id", getNoteById);
 usersRouter.post("/notes/", createNoteValidator, validatorMiddleware, addNote);
 usersRouter.put(

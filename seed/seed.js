@@ -24,6 +24,7 @@ async function runSeed() {
 
 		console.log("👤 Seeding users...");
 		const users = await seedUsers(usersCount);
+		console.log(users);
 
 		console.log("📝 Seeding notes...");
 		await seedNotes(users, notesCount);

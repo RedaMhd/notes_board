@@ -3,12 +3,16 @@ export type Note = {
 	body: string;
 	colors: string;
 	position: string;
+	createdAt?: string;
+	updatedAt?: string;
+	user_id?: string;
 };
 
 export type User = {
 	_id: string;
-	email?: string;
-	role?: string;
+	userName: string;
+	email: string;
+	role: string;
 };
 
 export type Position = {
@@ -21,4 +25,13 @@ export type Colors = {
 	colorHeader: string;
 	colorBody: string;
 	colorText: string;
+};
+
+export type Stats = {
+	total: number;
+	withBody: number;
+	emptyBody: number;
+	createdToday: number;
+	createdThisWeek: number;
+	updatedToday: number;
 };

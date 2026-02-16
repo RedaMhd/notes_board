@@ -44,3 +44,13 @@ export function bodyParser(value: string): string {
 		return value;
 	}
 }
+
+export function initialsFromEmail(email?: string) {
+	const s = (email ?? "").trim();
+	if (!s) return "GU";
+	const left = s.split("@")[0] ?? s;
+	const parts = left.split(/[._\- ]+/).filter(Boolean);
+	const a = (parts[0]?.[0] ?? left[0] ?? "G").toUpperCase();
+	const b = (parts[1]?.[0] ?? left[1] ?? "U").toUpperCase();
+	return `${a}${b}`;
+}
